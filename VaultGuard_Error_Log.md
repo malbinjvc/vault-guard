@@ -4,6 +4,11 @@
 
 No build errors encountered. All 31 tests passed on first run.
 
+### CI Fix: TypeScript Strict Type Checking
+- **Error**: `TS18046: 'body' is of type 'unknown'` in app.test.ts; `TS2345: string | undefined not assignable to string` in jwt.ts
+- **Cause**: `Response.json()` returns `Promise<unknown>` in strict mode; `noUncheckedIndexedAccess` makes array destructuring return `T | undefined`
+- **Fix**: Added type assertions `as { ... }` on all `res.json()` calls in tests; used `parts[0]!` instead of destructuring in jwt.ts
+
 ---
 
 ## Security Audit (10-Point Checklist)
