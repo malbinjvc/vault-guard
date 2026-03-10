@@ -21,7 +21,7 @@ describe("Health", () => {
     const app = testApp();
     const res = await app.request("/health");
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as { status: string };
     expect(body.status).toBe("ok");
   });
 });
@@ -46,7 +46,7 @@ describe("Admin - Token", () => {
       body: JSON.stringify({ sub: "user1", role: "admin" }),
     });
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as { token: string; expiresIn: number };
     expect(body.token).toBeTruthy();
     expect(body.expiresIn).toBe(3600);
   });
@@ -69,7 +69,7 @@ describe("Admin - Token", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sub: "user1", role: "admin" }),
     });
-    const { token } = await genRes.json();
+    const { token } = (await genRes.json()) as { token: string };
 
     // Verify token
     const verifyRes = await app.request("/admin/auth/verify", {
@@ -78,7 +78,7 @@ describe("Admin - Token", () => {
       body: JSON.stringify({ token }),
     });
     expect(verifyRes.status).toBe(200);
-    const body = await verifyRes.json();
+    const body = (await verifyRes.json()) as { valid: boolean; payload: { sub: string } };
     expect(body.valid).toBe(true);
     expect(body.payload.sub).toBe("user1");
   });
@@ -90,7 +90,7 @@ describe("Admin - Token", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: "invalid.token.here" }),
     });
-    const body = await res.json();
+    const body = (await res.json()) as { valid: boolean };
     expect(body.valid).toBe(false);
   });
 });
@@ -100,7 +100,7 @@ describe("Admin - Logs & Stats", () => {
     const app = testApp();
     const res = await app.request("/admin/logs");
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as unknown[];
     expect(Array.isArray(body)).toBe(true);
   });
 
@@ -108,7 +108,7 @@ describe("Admin - Logs & Stats", () => {
     const app = testApp();
     const res = await app.request("/admin/stats");
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as { totalRequests: number; uptime: string };
     expect(body.totalRequests).toBe(0);
     expect(body.uptime).toBeTruthy();
   });
@@ -123,17 +123,17 @@ describe("Admin - Services", () => {
     });
     const res = await app.request("/admin/services");
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as { name: string; requireAuth: boolean }[];
     expect(body.length).toBe(1);
-    expect(body[0].name).toBe("api");
-    expect(body[0].requireAuth).toBe(true);
+    expect(body[0]!.name).toBe("api");
+    expect(body[0]!.requireAuth).toBe(true);
   });
 
   test("returns empty when no services", async () => {
     const app = testApp();
     const res = await app.request("/admin/services");
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as unknown[];
     expect(body.length).toBe(0);
   });
 });
@@ -143,7 +143,7 @@ describe("Admin - Health Check", () => {
     const app = testApp();
     const res = await app.request("/admin/health");
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as { gateway: string; overall: string };
     expect(body.gateway).toBe("healthy");
     expect(body.overall).toBe("healthy");
   });

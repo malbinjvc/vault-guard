@@ -31,7 +31,9 @@ export class JwtService {
       throw new Error("Invalid token format");
     }
 
-    const [header, body, signature] = parts;
+    const header = parts[0]!;
+    const body = parts[1]!;
+    const signature = parts[2]!;
     const expectedSig = await this.hmacSign(`${header}.${body}`);
 
     if (!this.timingSafeEqual(signature, expectedSig)) {
